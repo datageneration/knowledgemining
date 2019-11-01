@@ -6,6 +6,7 @@
 # Best Subset Selection
 
 library(ISLR)
+attach(Hitters)
 hitters=Hitters
 names(Hitters)
 dim(Hitters)
@@ -15,6 +16,7 @@ sum(is.na(Hitters$Salary))
 Hitters=na.omit(Hitters)
 dim(Hitters)
 sum(is.na(Hitters))
+library(descr)
 freq(Hitters$Salary)
 # Package leaps to perform subset selection in regresson
 # install.packages("leaps")
@@ -36,8 +38,8 @@ summary(regfit.full)
 regfit.full=regsubsets(Salary~.,data=Hitters,nvmax=19)
 reg.summary=summary(regfit.full)
 names(reg.summary)
-reg.summary$rsq # Plot R squared
-reg.summary$adjr # Plot R squared
+reg.summary$rsq # R squared
+reg.summary$adjr # adjusted R squared
 
 # Prepare for plots
 
@@ -102,9 +104,9 @@ for(i in 1:19){
   pred=test.mat[,names(coefi)]%*%coefi
   val.errors[i]=mean((Hitters$Salary[test]-pred)^2)
 }
-val.errors
+val.errors # MSE
 which.min(val.errors)
-coef(regfit.best,10)
+coef(regfit.best,7)
 
 # There is no predict() method for regsubsets()
 # Writing a predict function for cross-validation
@@ -119,6 +121,7 @@ predict.regsubsets=function(object,newdata,id,...){
 
 # Best subset selection on the full data set
 regfit.best=regsubsets(Salary~.,data=Hitters,nvmax=19)
+summary(regfit.best)
 coef(regfit.best,10)
 
 # Create a vector that allocates each observation to one of k = 10 folds
@@ -139,9 +142,11 @@ for(j in 1:k){
 }
 mean.cv.errors=apply(cv.errors,2,mean)
 mean.cv.errors
+which.min(mean.cv.errors)
 par(mfrow=c(1,1))
 plot(mean.cv.errors,type='b', pch=16)
 
 # Which is best model?
 reg.best=regsubsets(Salary~.,data=Hitters, nvmax=19)
 coef(reg.best,10)
+
